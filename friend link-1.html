@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Friend Link - หาเพื่อนทำกิจกรรม</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Kanit', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        .notification-badge { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .activity-card { background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%); }
+        .chat-bubble { max-width: 70%; word-wrap: break-word; }
+        .online-indicator { width: 12px; height: 12px; background: #10b981; border: 2px solid white; border-radius: 50%; position: absolute; bottom: 0; right: 0; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="gradient-bg shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <div class="text-white text-2xl font-bold">
+                        <i class="fas fa-users mr-2"></i>Friend Link
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="#" class="text-white hover:text-gray-200 transition-colors" onclick="showPage('home')">หน้าหลัก</a>
+                    <a href="#" class="text-white hover:text-gray-200 transition-colors" onclick="showPage('search')">ค้นหา</a>
+                    <a href="#" class="text-white hover:text-gray-200 transition-colors" onclick="showPage('activities')">กิจกรรม</a>
+                    <a href="#" class="text-white hover:text-gray-200 transition-colors" onclick="showPage('chat')">แชท</a>
+                    <div class="relative">
+                        <button class="text-white hover:text-gray-200 transition-colors" onclick="toggleNotifications()">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-badge absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">3</span>
+                        </button>
+                    </div>
+                    <div class="relative">
+                        <button class="flex items-center text-white hover:text-gray-200 transition-colors" onclick="toggleProfile()">
+                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23f59e0b'/%3E%3Ctext x='50' y='60' text-anchor='middle' fill='white' font-size='40' font-family='Arial'%3E👤%3C/text%3E%3C/svg%3E" alt="Profile" class="w-8 h-8 rounded-full mr-2">
+                            <span>สมชาย</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="md:hidden">
+                    <button class="text-white" onclick="toggleMobileMenu()">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="hidden md:hidden bg-white shadow-lg">
+        <div class="px-4 py-2 space-y-2">
+            <a href="#" class="block py-2 text-gray-700 hover:text-purple-600" onclick="showPage('home')">หน้าหลัก</a>
+            <a href="#" class="block py-2 text-gray-700 hover:text-purple-600" onclick="showPage('search')">ค้นหา</a>
+            <a href="#" class="block py-2 text-gray-700 hover:text-purple-600" onclick="showPage('activities')">กิจกรรม</a>
+            <a href="#" class="block py-2 text-gray-700 hover:text-purple-600" onclick="showPage('chat')">แชท</a>
+            <a href="#" class="block py-2 text-gray-700 hover:text-purple-600" onclick="showPage('profile')">โปรไฟล์</a>
+        </div>
+    </div>
+
+    <!-- Notifications Dropdown -->
+    <div id="notificationDropdown" class="hidden absolute top-16 right-4 bg-white rounded-lg shadow-xl w-80 z-50">
+        <div class="p-4 border-b">
+            <h3 class="font-semibold text-gray-800">การแจ้งเตือน</h3>
+        </div>
+        <div class="max-h-64 overflow-y-auto">
+            <div class="p-3 border-b hover:bg-gray-50 cursor-pointer">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm">🎮</div>
+                    <div class="ml-3 flex-1">
+                        <p class="text-sm font-medium">มีคนชวนเล่นเกม</p>
+                        <p class="text-xs text-gray-500">5 นาทีที่แล้ว</p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-3 border-b hover:bg-gray-50 cursor-pointer">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white text-sm">🍕</div>
+                    <div class="ml-3 flex-1">
+                        <p class="text-sm font-medium">กิจกรรมกินข้าวใหม่</p>
+                        <p class="text-xs text-gray-500">1 ชั่วโมงที่แล้ว</p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-3 hover:bg-gray-50 cursor-pointer">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center text-white text-sm">🎬</div>
+                    <div class="ml-3 flex-1">
+                        <p class="text-sm font-medium">กิจกรรมดูหนังใกล้คุณ</p>
+                        <p class="text-xs text-gray-500">2 ชั่วโมงที่แล้ว</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Home Page -->
+        <div id="homePage" class="page-content">
+            <!-- Hero Section -->
+            <div class="gradient-bg rounded-2xl p-8 mb-8 text-white">
+                <div class="max-w-4xl mx-auto text-center">
+                    <h1 class="text-4xl md:text-5xl font-bold mb-4">หาเพื่อนทำกิจกรรมที่คุณชอบ</h1>
+                    <p class="text-xl mb-6 opacity-90">เชื่อมต่อกับคนที่มีความสนใจเหมือนกัน สร้างความทรงจำดี ๆ ไปด้วยกัน</p>
+                    <button class="bg-white text-purple-600 px-8 py-3 rounded-full font-semibold hover:bg-gray-100 transition-colors" onclick="showPage('search')">
+                        เริ่มต้นหาเพื่อน
+                    </button>
+                </div>
+            </div>
+
+            <!-- Popular Activities -->
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">กิจกรรมยอดนิยม</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="activity-card card-hover rounded-xl p-6 shadow-md">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white text-xl">🎮</div>
+                            <div class="ml-4">
+                                <h3 class="font-semibold text-gray-800">เล่นเกมออนไลน์</h3>
+                                <p class="text-sm text-gray-600">15 คนสนใจ</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 mb-4">มาเล่นเกม Valorant กันเย็นนี้! หาทีมเพื่อแรงค์อัพ</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-500">📍 ออนไลน์</span>
+                            <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">เข้าร่วม</button>
+                        </div>
+                    </div>
+
+                    <div class="activity-card card-hover rounded-xl p-6 shadow-md">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-white text-xl">🍕</div>
+                            <div class="ml-4">
+                                <h3 class="font-semibold text-gray-800">กินข้าวร้านใหม่</h3>
+                                <p class="text-sm text-gray-600">8 คนสนใจ</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 mb-4">ลองร้านอาหารญี่ปุ่นใหม่ที่เซ็นทรัลเวิลด์</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-500">📍 เซ็นทรัลเวิลด์</span>
+                            <button class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">เข้าร่วม</button>
+                        </div>
+                    </div>
+
+                    <div class="activity-card card-hover rounded-xl p-6 shadow-md">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center text-white text-xl">🎬</div>
+                            <div class="ml-4">
+                                <h3 class="font-semibold text-gray-800">ดูหนังใหม่</h3>
+                                <p class="text-sm text-gray-600">12 คนสนใจ</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 mb-4">ดูหนัง Marvel เรื่องใหม่ที่โรงหนัง</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-500">📍 เมเจอร์ รัชโยธิน</span>
+                            <button class="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors">เข้าร่วม</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nearby Activities -->
+            <div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">กิจกรรมใกล้คุณ</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="activity-card card-hover rounded-xl p-6 shadow-md">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center text-white text-xl">☕</div>
+                            <div class="ml-4">
+                                <h3 class="font-semibold text-gray-800">นั่งคาเฟ่ทำงาน</h3>
+                                <p class="text-sm text-gray-600">5 คนสนใจ</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 mb-4">หาเพื่อนนั่งทำงานที่คาเฟ่ บรรยากาศดี</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-500">📍 ห่าง 2.5 กม.</span>
+                            <button class="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors">เข้าร่วม</button>
+                        </div>
+                    </div>
+
+                    <div class="activity-card card-hover rounded-xl p-6 shadow-md">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center text-white text-xl">🏃</div>
+                            <div class="ml-4">
+                                <h3 class="font-semibold text-gray-800">วิ่งออกกำลังกาย</h3>
+                                <p class="text-sm text-gray-600">7 คนสนใจ</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 mb-4">วิ่งเช้าที่สวนลุมพินี พรุ่งนี้ 6 โมงเช้า</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-500">📍 ห่าง 1.2 กม.</span>
+                            <button class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors">เข้าร่วม</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Page -->
+        <div id="searchPage" class="page-content hidden">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6">ค้นหาเพื่อนและกิจกรรม</h2>
+                
+                <!-- Search Filters -->
+                <div class="bg-white rounded-xl p-6 shadow-md mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">ประเภทกิจกรรม</label>
+                            <select class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                <option>ทั้งหมด</option>
+                                <option>เล่นเกม</option>
+                                <option>กินข้าว</option>
+                                <option>ดูหนัง</option>
+                                <option>กีฬา</option>
+                                <option>ท่องเที่ยว</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">สถานที่</label>
+                            <input type="text" placeholder="ใส่ชื่อสถานที่หรือพื้นที่" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">วันที่</label>
+                            <input type="date" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        </div>
+                        <div class="flex items-end">
+                            <button class="w-full bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700 transition-colors">
+                                <i class="fas fa-search mr-2"></i>ค้นหา
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search Results -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="activity-card card-hover rounded-xl p-6 shadow-md">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-indigo-500 rounded-full flex items-center justify-center text-white text-xl">🎯</div>
+                            <div class="ml-4">
+                                <h3 class="font-semibold text-gray-800">เล่นบอร์ดเกม</h3>
+                                <p class="text-sm text-gray-600">6 คนสนใจ</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 mb-4">เล่นบอร์ดเกมสนุก ๆ ที่คาเฟ่บอร์ดเกม</p>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-sm text-gray-500">📍 สยามสแควร์</span>
+                            <span class="text-sm text-gray-500">🕐 19:00 น.</span>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button class="flex-1 bg-indigo-500 text-white py-2 rounded-lg hover:bg-indigo-600 transition-colors">เข้าร่วม</button>
+                            <button class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                <i class="fas fa-heart"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="activity-card card-hover rounded-xl p-6 shadow-md">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-pink-500 rounded-full flex items-center justify-center text-white text-xl">🎨</div>
+                            <div class="ml-4">
+                                <h3 class="font-semibold text-gray-800">วาดรูป Workshop</h3>
+                                <p class="text-sm text-gray-600">4 คนสนใจ</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 mb-4">เรียนวาดรูปสีน้ำกับครูมืออาชีพ</p>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-sm text-gray-500">📍 ทองหล่อ</span>
+                            <span class="text-sm text-gray-500">🕐 14:00 น.</span>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button class="flex-1 bg-pink-500 text-white py-2 rounded-lg hover:bg-pink-600 transition-colors">เข้าร่วม</button>
+                            <button class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                <i class="fas fa-heart"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="activity-card card-hover rounded-xl p-6 shadow-md">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-teal-500 rounded-full flex items-center justify-center text-white text-xl">🏊</div>
+                            <div class="ml-4">
+                                <h3 class="font-semibold text-gray-800">ว่ายน้ำ</h3>
+                                <p class="text-sm text-gray-600">9 คนสนใจ</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 mb-4">ว่ายน้ำออกกำลังกายที่สระว่ายน้ำ</p>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-sm text-gray-500">📍 ฟิตเนส เซ็นเตอร์</span>
+                            <span class="text-sm text-gray-500">🕐 18:00 น.</span>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button class="flex-1 bg-teal-500 text-white py-2 rounded-lg hover:bg-teal-600 transition-colors">เข้าร่วม</button>
+                            <button class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                <i class="fas fa-heart"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activities Page -->
+        <div id="activitiesPage" class="page-content hidden">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-3xl font-bold text-gray-800">จัดการกิจกรรม</h2>
+                <button class="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors" onclick="showCreateActivity()">
+                    <i class="fas fa-plus mr-2"></i>สร้างกิจกรรมใหม่
+                </button>
+            </div>
+
+            <!-- Activity Tabs -->
+            <div class="mb-6">
+                <div class="border-b border-gray-200">
+                    <nav class="-mb-px flex space-x-8">
+                        <button class="activity-tab active py-2 px-1 border-b-2 border-purple-500 font-medium text-sm text-purple-600" onclick="showActivityTab('my')">
+                            กิจกรรมของฉัน
+                        </button>
+                        <button class="activity-tab py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700" onclick="showActivityTab('joined')">
+                            กิจกรรมที่เข้าร่วม
+                        </button>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- My Activities -->
+            <div id="myActivities" class="activity-tab-content">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="activity-card rounded-xl p-6 shadow-md border-l-4 border-purple-500">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center text-white text-xl">🎮</div>
+                                <div class="ml-4">
+                                    <h3 class="font-semibold text-gray-800">เล่นเกม Valorant</h3>
+                                    <p class="text-sm text-gray-600">สร้างโดยคุณ</p>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="text-blue-600 hover:text-blue-800">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="text-red-600 hover:text-red-800">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 mb-4">หาทีมเพื่อแรงค์อัพ มีประสบการณ์เล่นมาแล้ว</p>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-sm text-gray-500">📍 ออนไลน์</span>
+                            <span class="text-sm text-gray-500">👥 5/5 คน</span>
+                        </div>
+                        <div class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm inline-block">
+                            เต็มแล้ว
+                        </div>
+                    </div>
+
+                    <div class="activity-card rounded-xl p-6 shadow-md border-l-4 border-green-500">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-white text-xl">🍕</div>
+                                <div class="ml-4">
+                                    <h3 class="font-semibold text-gray-800">ลองร้านพิซซ่าใหม่</h3>
+                                    <p class="text-sm text-gray-600">สร้างโดยคุณ</p>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="text-blue-600 hover:text-blue-800">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="text-red-600 hover:text-red-800">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 mb-4">ร้านพิซซ่าใหม่ที่เปิดใหม่ ได้ยินมาว่าอร่อยมาก</p>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-sm text-gray-500">📍 เซ็นทรัลเวิลด์</span>
+                            <span class="text-sm text-gray-500">👥 3/6 คน</span>
+                        </div>
+                        <div class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm inline-block">
+                            รอสมาชิก
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Joined Activities -->
+            <div id="joinedActivities" class="activity-tab-content hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="activity-card rounded-xl p-6 shadow-md">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center text-white text-xl">☕</div>
+                            <div class="ml-4">
+                                <h3 class="font-semibold text-gray-800">นั่งคาเฟ่ทำงาน</h3>
+                                <p class="text-sm text-gray-600">สร้างโดย นางสาวใส</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 mb-4">หาเพื่อนนั่งทำงานที่คาเฟ่ บรรยากาศดี</p>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-sm text-gray-500">📍 คาเฟ่ อารีย์</span>
+                            <span class="text-sm text-gray-500">👥 4/6 คน</span>
+                        </div>
+                        <button class="w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition-colors">
+                            ออกจากกิจกรรม
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Page -->
+        <div id="chatPage" class="page-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 h-96">
+                <!-- Chat List -->
+                <div class="bg-white rounded-xl shadow-md">
+                    <div class="p-4 border-b">
+                        <h3 class="font-semibold text-gray-800">แชท</h3>
+                    </div>
+                    <div class="overflow-y-auto h-80">
+                        <div class="p-3 border-b hover:bg-gray-50 cursor-pointer" onclick="openChat('game')">
+                            <div class="flex items-center">
+                                <div class="relative">
+                                    <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white">🎮</div>
+                                    <div class="online-indicator"></div>
+                                </div>
+                                <div class="ml-3 flex-1">
+                                    <p class="font-medium text-gray-800">กลุ่มเล่นเกม</p>
+                                    <p class="text-sm text-gray-500">มาเล่นกันเถอะ!</p>
+                                </div>
+                                <div class="text-xs text-gray-400">10:30</div>
+                            </div>
+                        </div>
+                        <div class="p-3 border-b hover:bg-gray-50 cursor-pointer" onclick="openChat('food')">
+                            <div class="flex items-center">
+                                <div class="relative">
+                                    <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white">🍕</div>
+                                </div>
+                                <div class="ml-3 flex-1">
+                                    <p class="font-medium text-gray-800">กลุ่มกินข้าว</p>
+                                    <p class="text-sm text-gray-500">เจอกันที่ร้านนะ</p>
+                                </div>
+                                <div class="text-xs text-gray-400">09:15</div>
+                            </div>
+                        </div>
+                        <div class="p-3 border-b hover:bg-gray-50 cursor-pointer" onclick="openChat('movie')">
+                            <div class="flex items-center">
+                                <div class="relative">
+                                    <div class="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center text-white">🎬</div>
+                                    <div class="online-indicator"></div>
+                                </div>
+                                <div class="ml-3 flex-1">
+                                    <p class="font-medium text-gray-800">กลุ่มดูหนัง</p>
+                                    <p class="text-sm text-gray-500">หนังเรื่องไหนดี?</p>
+                                </div>
+                                <div class="text-xs text-gray-400">08:45</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Window -->
+                <div class="lg:col-span-2 bg-white rounded-xl shadow-md">
+                    <div id="chatWindow" class="h-full flex flex-col">
+                        <div class="p-4 border-b">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white">🎮</div>
+                                <div class="ml-3">
+                                    <h3 class="font-semibold text-gray-800">กลุ่มเล่นเกม</h3>
+                                    <p class="text-sm text-gray-500">5 สมาชิก</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex-1 p-4 overflow-y-auto">
+                            <div class="space-y-4">
+                                <div class="flex items-start">
+                                    <div class="w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center text-white text-sm">A</div>
+                                    <div class="ml-3 chat-bubble bg-gray-100 p-3 rounded-lg">
+                                        <p class="text-sm">สวัสดีครับ! พร้อมเล่นกันมั้ย?</p>
+                                        <span class="text-xs text-gray-500">10:25</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start justify-end">
+                                    <div class="mr-3 chat-bubble bg-purple-500 text-white p-3 rounded-lg">
+                                        <p class="text-sm">พร้อมแล้วครับ! เริ่มเลย</p>
+                                        <span class="text-xs text-purple-200">10:26</span>
+                                    </div>
+                                    <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white text-sm">คุณ</div>
+                                </div>
+                                
+                                <div class="flex items-start">
+                                    <div class="w-8 h-8 bg-green-400 rounded-full flex items-center justify-center text-white text-sm">B</div>
+                                    <div class="ml-3 chat-bubble bg-gray-100 p-3 rounded-lg">
+                                        <p class="text-sm">รอสักครู่นะ กำลังเปิดเกม</p>
+                                        <span class="text-xs text-gray-500">10:28</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-4 border-t">
+                            <div class="flex space-x-2">
+                                <input type="text" placeholder="พิมพ์ข้อความ..." class="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                <button class="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Page -->
+        <div id="profilePage" class="page-content hidden">
+            <div class="max-w-4xl mx-auto">
+                <div class="bg-white rounded-xl shadow-md p-8">
+                    <div class="flex items-center mb-8">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23f59e0b'/%3E%3Ctext x='50' y='60' text-anchor='middle' fill='white' font-size='40' font-family='Arial'%3E👤%3C/text%3E%3C/svg%3E" alt="Profile" class="w-20 h-20 rounded-full mr-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-800">สมชาย ใจดี</h2>
+                            <p class="text-gray-600">เข้าร่วมเมื่อ มกราคม 2024</p>
+                            <div class="flex items-center mt-2">
+                                <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm mr-2">
+                                    <i class="fas fa-circle text-green-500 mr-1"></i>ออนไลน์
+                                </span>
+                                <span class="text-sm text-gray-500">⭐ 4.8 (25 รีวิว)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">ข้อมูลส่วนตัว</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">ชื่อ-นามสกุล</label>
+                                    <input type="text" value="สมชาย ใจดี" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">อีเมล</label>
+                                    <input type="email" value="somchai@email.com" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">เบอร์โทร</label>
+                                    <input type="tel" value="081-234-5678" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">พื้นที่</label>
+                                    <input type="text" value="กรุงเทพมหานคร" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">ความสนใจ</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">กิจกรรมที่ชอบ</label>
+                                    <div class="flex flex-wrap gap-2">
+                                        <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">🎮 เล่นเกม</span>
+                                        <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">🍕 กินข้าว</span>
+                                        <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm">🎬 ดูหนัง</span>
+                                        <span class="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm">☕ คาเฟ่</span>
+                                        <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm">🏃 กีฬา</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">แนะนำตัว</label>
+                                    <textarea rows="4" placeholder="เล่าเกี่ยวกับตัวคุณ..." class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">สวัสดีครับ! ผมชอบเล่นเกมและหากิจกรรมสนุก ๆ ทำ ชอบลองร้านอาหารใหม่ ๆ และดูหนัง หวังว่าจะได้รู้จักเพื่อนใหม่ที่มีความสนใจคล้าย ๆ กัน</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 flex justify-end space-x-4">
+                        <button class="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                            ยกเลิก
+                        </button>
+                        <button class="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+                            บันทึกการเปลี่ยนแปลง
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Create Activity Modal -->
+        <div id="createActivityModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-xl max-w-2xl w-full max-h-90vh overflow-y-auto">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-2xl font-bold text-gray-800">สร้างกิจกรรมใหม่</h3>
+                        <button class="text-gray-500 hover:text-gray-700" onclick="hideCreateActivity()">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+
+                    <form class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">ชื่อกิจกรรม</label>
+                            <input type="text" placeholder="ใส่ชื่อกิจกรรม" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">ประเภทกิจกรรม</label>
+                            <select class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                <option>เลือกประเภทกิจกรรม</option>
+                                <option>🎮 เล่นเกม</option>
+                                <option>🍕 กินข้าว</option>
+                                <option>🎬 ดูหนัง</option>
+                                <option>☕ คาเฟ่</option>
+                                <option>🏃 กีฬา</option>
+                                <option>🎨 ศิลปะ</option>
+                                <option>📚 เรียนรู้</option>
+                                <option>🎵 ดนตรี</option>
+                                <option>✈️ ท่องเที่ยว</option>
+                                <option>🛍️ ช้อปปิ้ง</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">รายละเอียด</label>
+                            <textarea rows="4" placeholder="อธิบายกิจกรรมของคุณ..." class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"></textarea>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">สถานที่</label>
+                                <input type="text" placeholder="ใส่สถานที่" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">จำนวนคน</label>
+                                <input type="number" placeholder="จำนวนคนที่ต้องการ" min="2" max="50" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">วันที่</label>
+                                <input type="date" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">เวลา</label>
+                                <input type="time" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end space-x-4 pt-6">
+                            <button type="button" class="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors" onclick="hideCreateActivity()">
+                                ยกเลิก
+                            </button>
+                            <button type="submit" class="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+                                สร้างกิจกรรม
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // Page Navigation
+        function showPage(pageId) {
+            // Hide all pages
+            const pages = document.querySelectorAll('.page-content');
+            pages.forEach(page => page.classList.add('hidden'));
+            
+            // Show selected page
+            document.getElementById(pageId + 'Page').classList.remove('hidden');
+            
+            // Close mobile menu if open
+            document.getElementById('mobileMenu').classList.add('hidden');
+        }
+
+        // Mobile Menu Toggle
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Notifications Toggle
+        function toggleNotifications() {
+            const dropdown = document.getElementById('notificationDropdown');
+            dropdown.classList.toggle('hidden');
+        }
+
+        // Profile Toggle
+        function toggleProfile() {
+            showPage('profile');
+        }
+
+        // Activity Tabs
+        function showActivityTab(tabId) {
+            // Update tab buttons
+            const tabs = document.querySelectorAll('.activity-tab');
+            tabs.forEach(tab => {
+                tab.classList.remove('active', 'border-purple-500', 'text-purple-600');
+                tab.classList.add('border-transparent', 'text-gray-500');
+            });
+            
+            event.target.classList.add('active', 'border-purple-500', 'text-purple-600');
+            event.target.classList.remove('border-transparent', 'text-gray-500');
+            
+            // Show/hide content
+            const contents = document.querySelectorAll('.activity-tab-content');
+            contents.forEach(content => content.classList.add('hidden'));
+            
+            if (tabId === 'my') {
+                document.getElementById('myActivities').classList.remove('hidden');
+            } else {
+                document.getElementById('joinedActivities').classList.remove('hidden');
+            }
+        }
+
+        // Create Activity Modal
+        function showCreateActivity() {
+            document.getElementById('createActivityModal').classList.remove('hidden');
+        }
+
+        function hideCreateActivity() {
+            document.getElementById('createActivityModal').classList.add('hidden');
+        }
+
+        // Chat Functions
+        function openChat(chatId) {
+            const chatData = {
+                'game': {
+                    name: 'กลุ่มเล่นเกม',
+                    icon: '🎮',
+                    color: 'bg-blue-500',
+                    members: '5 สมาชิก'
+                },
+                'food': {
+                    name: 'กลุ่มกินข้าว',
+                    icon: '🍕',
+                    color: 'bg-green-500',
+                    members: '6 สมาชิก'
+                },
+                'movie': {
+                    name: 'กลุ่มดูหนัง',
+                    icon: '🎬',
+                    color: 'bg-purple-500',
+                    members: '4 สมาชิก'
+                }
+            };
+
+            const chat = chatData[chatId];
+            const chatWindow = document.getElementById('chatWindow');
+            
+            chatWindow.innerHTML = `
+                <div class="p-4 border-b">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 ${chat.color} rounded-full flex items-center justify-center text-white">${chat.icon}</div>
+                        <div class="ml-3">
+                            <h3 class="font-semibold text-gray-800">${chat.name}</h3>
+                            <p class="text-sm text-gray-500">${chat.members}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex-1 p-4 overflow-y-auto">
+                    <div class="space-y-4">
+                        <div class="flex items-start">
+                            <div class="w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center text-white text-sm">A</div>
+                            <div class="ml-3 chat-bubble bg-gray-100 p-3 rounded-lg">
+                                <p class="text-sm">สวัสดีครับ!</p>
+                                <span class="text-xs text-gray-500">10:25</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start justify-end">
+                            <div class="mr-3 chat-bubble bg-purple-500 text-white p-3 rounded-lg">
+                                <p class="text-sm">สวัสดีครับ!</p>
+                                <span class="text-xs text-purple-200">10:26</span>
+                            </div>
+                            <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white text-sm">คุณ</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="p-4 border-t">
+                    <div class="flex space-x-2">
+                        <input type="text" placeholder="พิมพ์ข้อความ..." class="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        <button class="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(event) {
+            const notificationDropdown = document.getElementById('notificationDropdown');
+            const notificationButton = event.target.closest('button');
+            
+            if (!notificationButton || !notificationButton.onclick || notificationButton.onclick.toString().indexOf('toggleNotifications') === -1) {
+                notificationDropdown.classList.add('hidden');
+            }
+        });
+
+        // Form submission handlers
+        document.addEventListener('DOMContentLoaded', function() {
+            // Create activity form
+            const createActivityForm = document.querySelector('#createActivityModal form');
+            if (createActivityForm) {
+                createActivityForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    alert('กิจกรรมถูกสร้างเรียบร้อยแล้ว!');
+                    hideCreateActivity();
+                });
+            }
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97bbeac784a3732e',t:'MTc1NzMwNzk5Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
